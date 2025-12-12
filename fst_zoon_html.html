@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FST ZOON - مطعم الأكل السريع</title>
+
+  <style>
+    :root{--accent:#420d12;--bg:#ff8c00}
+    *{box-sizing:border-box;font-family:'Segoe UI',Tahoma,Verdana,sans-serif}
+    body{margin:0;background:linear-gradient(180deg,#b57322a5,#a94f26);color:#222}
+
+    header{
+      background:var(--accent);
+      color:#fff;
+      padding:15px 20px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      position:sticky;
+      top:0;
+      z-index:10
+    }
+
+    nav a{
+      color:#fff;
+      margin-left:15px;
+      text-decoration:none;
+      font-weight:bold
+    }
+
+    input,textarea{
+      padding:10px;
+      border-radius:10px;
+      border:none;
+      margin:5px 0;
+      width:100%;
+    }
+
+    .hero{
+      text-align:center;
+      padding:60px 20px
+    }
+
+    .menu{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:20px;
+      padding:20px
+    }
+
+    .card{
+      background:rgb(226, 226, 226);
+      padding:15px;
+      border-radius:20px;
+      box-shadow:0 10px 30px rgba(0,0,0,.1);
+      text-align:center;
+      cursor:pointer;
+      transition:.2s;
+    }
+
+    .card img{
+      width:100%;
+      height:200px;
+      object-fit:cover;
+      border-radius:15px
+    }
+
+    .card button{
+      background:var(--accent);
+      color:white;
+      border:none;
+      padding:10px 20px;
+      border-radius:15px;
+      cursor:pointer;
+      margin-top:10px
+    }
+
+    /* تأثير التحديد */
+    .card.selected{
+      border:3px solid gold;
+      box-shadow:0 0 20px rgba(255,215,0,.7);
+      transform:scale(1.03);
+    }
+
+    /* الصفحات */
+    .page{display:none;}
+    .page.active{display:block;}
+
+    .order{
+      background:white;
+      margin:20px;
+      padding:20px;
+      border-radius:20px
+    }
+
+    footer{
+      background:var(--accent);
+      color:white;
+      text-align:center;
+      padding:15px
+    }
+
+    #cart{
+      position:fixed;
+      top:80px;
+      left:10px;
+      background:white;
+      width:300px;
+      max-height:400px;
+      overflow-y:auto;
+      padding:15px;
+      border-radius:20px;
+      box-shadow:0 0 20px rgba(0,0,0,.2);
+      display:none;
+      z-index:1000
+    }
+
+    #cart button{background:red;margin-right:5px}
+
+    @media(max-width:768px){
+      header{flex-direction:column;gap:10px}
+      #cart{width:90%;left:5%}
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h2>FST ZOON</h2>
+
+  <nav>
+    <a onclick="showPage('homePage')">الرئيسية</a>
+    <a onclick="showPage('menuPage')">المنيو</a>
+    <a onclick="showPage('orderPage')">اطلب</a>
+  </nav>
+
+  <div style="display:flex;gap:10px;align-items:center">
+    <input type="text" id="searchBox" placeholder="🔍 ابحث..." onkeyup="filterMenu()">
+    <button onclick="toggleCart()">🛒 <span id="cartCount">0</span></button>
+  </div>
+</header>
+
+<!-- أزرار التنقل -->
+<div style="text-align:center;margin:20px;">
+  <button onclick="showPage('homePage')">🏠 الرئيسية</button>
+  <button onclick="showPage('menuPage')">📋 المنيو</button>
+  <button onclick="showPage('orderPage')">🛒 الطلب</button>
+</div>
+
+<!-- =================== صفحة الرئيسية =================== -->
+<div id="homePage" class="page active">
+  <section class="hero">
+    <h1>أهلاً بك في مطعم FST ZOON</h1>
+    <p>أفضل أكلات سريعة بأسرع توصيل</p>
+  </section>
+</div>
+
+<!-- =================== صفحة المنيو =================== -->
+<div id="menuPage" class="page">
+
+<section id="menu" class="menu">
+
+  <article class="card menu-item" data-name="برجر" data-price="45">
+    <img src="d:\New folder (3)\images\burger.jpg.jpg">
+    <h3>برجر لذيذ</h3>
+    <p>السعر: 45 ج</p>
+    <button onclick="addToCart('برجر لذيذ',45)">أضف للسلة</button>
+  </article>
+
+  <article class="card menu-item" data-name="بطاطس" data-price="25">
+    <img src="d:\New folder (3)\images\fries.jpg.jpg">
+    <h3>بطاطس مقلية</h3>
+    <p>السعر: 25 ج</p>
+    <button onclick="addToCart('بطاطس مقلية',25)">أضف للسلة</button>
+  </article>
+
+  <article class="card menu-item" data-name="كول سلو" data-price="20">
+    <img src="d:\New folder (3)\images\coleslaw.jpg.jpg">
+    <h3>كول سلو</h3>
+    <p>السعر: 20 ج</p>
+    <button onclick="addToCart('كول سلو',20)">أضف للسلة</button>
+  </article>
+
+  <article class="card menu-item" data-name="طبق مميز" data-price="70">
+    <img src="d:\New folder (3)\images\combo.jpg.jpg">
+    <h3>طبق مميز</h3>
+    <p>السعر: 70 ج</p>
+    <button onclick="addToCart('طبق مميز',70)">أضف للسلة</button>
+  </article>
+
+  <h1 style="grid-column:1/-1;text-align:center;color:white;">مشروبات</h1>
+
+  <article class="card menu-item" data-name="بيبسي" data-price="15">
+    <img src="d:\New folder (3)\a0287900-9c81-47e7-a6cc-7324847a63c9.jpg">
+    <h3>بيبسي</h3>
+    <p>السعر: 15 ج</p>
+    <button onclick="addToCart('بيبسي',15)">أضف للسلة</button>
+  </article>
+
+  <article class="card menu-item" data-name="ميرندا" data-price="15">
+    <img src="d:\New folder (3)\😷😷.jpg">
+    <h3>ميرندا</h3>
+    <p>السعر: 15 ج</p>
+    <button onclick="addToCart('ميرندا',15)">أضف للسلة</button>
+  </article>
+
+  <article class="card menu-item" data-name="مياه" data-price="10">
+    <img src="d:\New folder (3)\download.jpg">
+    <h3>مياه معدنية</h3>
+    <p>السعر: 10 ج</p>
+    <button onclick="addToCart('مياه معدنية',10)">أضف للسلة</button>
+  </article>
+
+  <article class="card menu-item" data-name="شويبس" data-price="18">
+    <img src="d:\New folder (3)\0db98ea9-d039-4c29-a8e4-87edce65ae7a.jpg">
+    <h3>شويبس</h3>
+    <p>السعر: 18 ج</p>
+    <button onclick="addToCart('شويبس',18)">أضف للسلة</button>
+  </article>
+
+</section>
+</div>
+
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>صفحة الطلب - مطعم</title>
+
+  <style>
+    body {
+      background:#a5471f;
+      margin:0;
+      font-family:"Tajawal", sans-serif;
+    }
+
+    .page.hidden {
+      display:none;
+    }
+
+    .order {
+      padding:20px;
+      max-width:500px;
+      margin:auto;
+      background:#923c17;
+      margin-top:40px;
+      padding:25px;
+      border-radius:15px;
+      box-shadow:0 0 10px #7b1111;
+    }
+
+    .order h3 {
+      text-align:center;
+      margin-bottom:20px;
+      font-size:22px;
+    }
+
+    .order input,
+    .order textarea {
+      width:100%;
+      padding:12px;
+      margin-bottom:12px;
+      border:2px solid #00254f;
+      border-radius:10px;
+      transition:.2s;
+      font-size:16px;
+      background:#ffffff;
+    }
+
+    .order input:focus,
+    .order textarea:focus {
+      border-color:#000000;
+      background:#000000;
+    }
+
+    .selected {
+      border-color:#fd0000 !important;
+      background:#ab510c !important;
+    }
+
+    .btn {
+      width:100%;
+      padding:14px;
+      background:#be430a;
+      color:#fadede;
+      border:none;
+      border-radius:12px;
+      font-size:18px;
+      cursor:pointer;
+      transition:.3s;
+      margin-top:10px;
+    }
+
+    .btn:hover {
+      background:#160606;
+    }
+  </style>
+</head>
+<body>
+
+<!-- =================== صفحة الطلب =================== -->
+<div id="orderPage" class="page">
+  <section class="order">
+    <h3>بيانات العميل</h3>
+
+    <input id="name" type="text" placeholder="الاسم">
+    <input id="phone" type="tel" placeholder="رقم الهاتف">
+    <textarea id="address" placeholder="العنوان"></textarea>
+
+    <button id="confirmOrder" class="btn">تأكيد الطلب</button>
+  </section>
+</div>
+
+<!-- صفحة افتراضية للتنقل -->
+<div id="menuPage" class="page hidden">
+  <section class="order">
+    <h3>مرحبا بك في صفحة المنيو</h3>
+    <p>تم الانتقال بنجاح بعد إدخال بيانات العميل.</p>
+  </section>
+</div>
+
+<script>
+// ================= تحديد العنصر عند الضغط ===================
+const inputs = document.querySelectorAll("#orderPage input, #orderPage textarea");
+
+inputs.forEach(el => {
+  el.addEventListener("click", () => {
+    inputs.forEach(i => i.classList.remove("selected"));
+    el.classList.add("selected");
+  });
+});
+
+// =================== التأكد من البيانات ======================
+document.getElementById("confirmOrder").addEventListener("click", () => {
+  let name = document.getElementById("name").value.trim();
+  let phone = document.getElementById("phone").value.trim();
+  let address = document.getElementById("address").value.trim();
+
+  if (name === "" || phone === "" || address === "") {
+    alert("❌ من فضلك أكمل البيانات قبل متابعة الطلب");
+    return;
+  }
+
+  // حفظ البيانات
+  localStorage.setItem("clientName", name);
+  localStorage.setItem("clientPhone", phone);
+  localStorage.setItem("clientAddress", address);
+
+  alert("✔ تم حفظ البيانات بنجاح!");
+
+  // التنقل لصفحة ثانية
+  showPage("menuPage");
+});
+
+// =================== دالة التنقل ======================
+function showPage(pageID) {
+  document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+  document.getElementById(pageID).classList.remove("hidden");
+}
+</script>
+
+</body>
+</html>
+
+
+<!-- =================== السلة =================== -->
+<div id="cart">
+  <h3>🛒 سلة المشتريات</h3>
+  <div id="cartItems"></div>
+  <hr>
+  <p><strong>الإجمالي: <span id="totalPrice">0</span> ج</strong></p>
+  <button onclick="sendCartToWhatsApp()" style="background:green;color:white">
+    إرسال الطلب واتساب
+  </button>
+</div>
+
+<footer>
+  © 2025 FST ZOON - MADE BY MAHMOUD EMAD
+</footer>
+
+<script>
+
+/* =================== 1) تمييز المنتج =================== */
+document.querySelectorAll('.card.menu-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+
+    document.querySelectorAll('.card.menu-item')
+    .forEach(el=>el.classList.remove('selected'));
+
+    item.classList.add('selected');
+  });
+});
+
+/* =================== 2) نظام الصفحات =================== */
+function showPage(pageID){
+  document.querySelectorAll('.page')
+  .forEach(p=>p.classList.remove('active'));
+
+  document.getElementById(pageID).classList.add('active');
+
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* =================== 3) نظام السلة =================== */
+let cart = [];
+let isCartOpen = false;
+
+function addToCart(name,price){
+  cart.push({name,price});
+  updateCart();
+}
+
+function updateCart(){
+  const box = document.getElementById("cartItems");
+  const count = document.getElementById("cartCount");
+  const totalBox = document.getElementById("totalPrice");
+
+  box.innerHTML="";
+  let total=0;
+
+  cart.forEach((item,index)=>{
+    total+=item.price;
+    box.innerHTML+=`
+      <p>${item.name} - ${item.price} ج
+      <button onclick="removeFromCart(${index})">❌</button></p>
+    `;
+  });
+
+  totalBox.innerText=total;
+  count.innerText=cart.length;
+}
+
+function removeFromCart(i){
+  cart.splice(i,1);
+  updateCart();
+}
+
+function toggleCart(){
+  const c=document.getElementById("cart");
+  isCartOpen=!isCartOpen;
+  c.style.display=isCartOpen?"block":"none";
+}
+
+/* =================== 4) البحث =================== */
+function filterMenu(){
+  const v=document.getElementById("searchBox").value.toLowerCase();
+  document.querySelectorAll('.menu-item').forEach(item=>{
+    const name=item.getAttribute("data-name").toLowerCase();
+    item.style.display=name.includes(v)?"block":"none";
+  });
+}
+
+/* =================== 5) واتساب =================== */
+function sendCartToWhatsApp(){
+  const name=document.getElementById("name").value;
+  const phone=document.getElementById("phone").value;
+  const address=document.getElementById("address").value;
+
+  let msg=`طلب جديد%0Aالاسم: ${name}%0Aالهاتف: ${phone}%0Aالعنوان: ${address}%0A---%0A`;
+
+  cart.forEach(item=>{
+    msg+=`${item.name} - ${item.price} ج%0A`;
+  });
+
+  const total=cart.reduce((sum,i)=>sum+i.price,0);
+  msg+=`الإجمالي: ${total} ج`;
+
+  window.open(`https://wa.me/01149350744?text=${msg}`,'_blank');
+}
+
+</script>
+
+</body>
+</html>
+
